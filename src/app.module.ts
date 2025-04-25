@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { SalasModule } from './salas/salas.module';
 import { EventosModule } from './eventos/eventos.module';
-import { UsersModule } from './users/users.module';
-import { Sala } from './salas/entities/sala.entity';
-import { Evento } from './eventos/entities/evento.entity';
-import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -16,12 +14,13 @@ import { User } from './users/entities/user.entity';
       username: 'root',      // ← Aquí
       password: '',  // ← Aquí
       database: 'app_calendario',      // ← Aquí
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      entities: [ __dirname + '/**/*.entity{.ts,.js}' ],
+      synchronize: false,
     }),
     SalasModule,
     EventosModule,
     UsersModule,
+    AuthModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

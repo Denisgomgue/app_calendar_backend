@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Evento } from '../../eventos/entities/evento.entity';
 
@@ -16,8 +16,6 @@ export class Sala {
   @Column()
   color: string;
 
-  @Column()
-  f_creacion: Date;
 
   @ManyToOne(() => User, user => user.salas, { eager: true, nullable: true, onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'id_usuario' })
@@ -25,4 +23,10 @@ export class Sala {
 
   @OneToMany(() => Evento, evento => evento.salaId)
   eventos: Evento[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

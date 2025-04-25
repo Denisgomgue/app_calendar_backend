@@ -1,15 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { EventosService } from './eventos.service';
 import { CreateEventoDto } from './dto/create-evento.dto';
 import { UpdateEventoDto } from './dto/update-evento.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('eventos')
+@UseGuards(JwtAuthGuard)
 export class EventosController {
   constructor(private readonly eventosService: EventosService) {}
 
   @Post()
-  create(@Body() createEventoDto: CreateEventoDto) {
-    return this.eventosService.create(createEventoDto);
+  @UseInterceptors(FileInterceptor('fileDocument')) // 'fileDocument' debe coincidir con el nombre del campo en el formulario del frontend
+  create(@Body() createEventoDto: CreateEventoDto, @UploadedFile() file: Express.Multer.File) {
+    return this.eventosService.create(createEventoDto, file);
   }
 
   @Get()
@@ -23,8 +27,9 @@ export class EventosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventoDto: UpdateEventoDto) {
-    return this.eventosService.update(+id, updateEventoDto);
+  @UseInterceptors(FileInterceptor('fileDocument'))
+  update(@Param('id') id: string, @Body() updateEventoDto: UpdateEventoDto, @UploadedFile() file: Express.Multer.File) {
+    return this.eventosService.update(+id, updateEventoDto, file);
   }
 
   @Delete(':id')

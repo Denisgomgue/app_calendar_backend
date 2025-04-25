@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { SalasService } from './salas.service';
 import { CreateSalaDto } from './dto/create-sala.dto';
 import { UpdateSalaDto } from './dto/update-sala.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('salas')
+@UseGuards(JwtAuthGuard) // Protege todas las rutas de este controlador
 export class SalasController {
   constructor(private readonly salasService: SalasService) {}
 

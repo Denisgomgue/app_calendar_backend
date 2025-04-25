@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateEventoDto } from './dto/create-evento.dto';
@@ -18,15 +18,39 @@ export class EventosService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createEventoDto: CreateEventoDto) {
-    const sala = await this.salaRepository.findOne({ where: { id: createEventoDto.salaId } });
-    if (!sala) throw new NotFoundException('Sala not found');
+  async create(createEventoDto: CreateEventoDto, file?: Express.Multer.File) {
+    console.log('Datos recibidos en createEventoDto:', createEventoDto);
+    console.log('Archivo recibido:', file);
 
-    const user = await this.userRepository.findOne({ where: { id: createEventoDto.creatorId } });
-    if (!user) throw new NotFoundException('User not found');
+    // Validación: al menos NumberDocument o file deben estar presentes
+    if (!createEventoDto.NumberDocument && !file) {
+      throw new BadRequestException('Debes proporcionar un Número de Documento o un archivo.');
+    }
 
-    const evento = this.eventoRepository.create({ ...createEventoDto, salaId: sala, creatorId: user });
-    return this.eventoRepository.save(evento);
+    try {
+      const sala = await this.salaRepository.findOne({ where: { id: createEventoDto.salaId } });
+      console.log('Sala encontrada:', sala);
+      if (!sala) throw new NotFoundException('Sala not found');
+
+      const user = await this.userRepository.findOne({ where: { id: createEventoDto.creatorId } });
+      console.log('Usuario encontrado:', user);
+      if (!user) throw new NotFoundException('User not found');
+
+      const evento = this.eventoRepository.create({
+        ...createEventoDto,
+        salaId: sala,
+        creatorId: user,
+        fileDocument: file?.filename,
+      });
+
+      console.log('Evento creado antes de guardar:', evento);
+      const savedEvento = await this.eventoRepository.save(evento);
+      console.log('Evento guardado en la base de datos:', savedEvento);
+      return savedEvento;
+    } catch (error) {
+      console.error('Error al crear el evento:', error);
+      throw error;
+    }
   }
 
   findAll() {
@@ -39,7 +63,7 @@ export class EventosService {
     return evento;
   }
 
-  async update(id: number, updateEventoDto: UpdateEventoDto) {
+  async update(id: number, updateEventoDto: UpdateEventoDto, file?: Express.Multer.File) {
     const evento = await this.findOne(id);
     if (updateEventoDto.salaId) {
       const sala = await this.salaRepository.findOne({ where: { id: updateEventoDto.salaId } });
@@ -50,6 +74,9 @@ export class EventosService {
       const user = await this.userRepository.findOne({ where: { id: updateEventoDto.creatorId } });
       if (!user) throw new NotFoundException('User not found');
       evento.creatorId = user;
+    }
+    if (file) {
+      evento.fileDocument = file.filename;
     }
     Object.assign(evento, updateEventoDto);
     return this.eventoRepository.save(evento);

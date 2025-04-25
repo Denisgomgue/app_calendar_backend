@@ -1,14 +1,31 @@
+import { IsString, IsDateString, IsInt, IsOptional } from 'class-validator';
+
 export class CreateEventoDto {
-    title: string;
-    startTime: Date;
-    endTime: Date;
-    NumberDocument: string;
-    fileDocument?: string;
-    description: string;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-    dni: string;
-    salaId: number;
-    creatorId: number;
-  }
+  @IsString()
+  title: string;
+
+  @IsDateString()
+  startTime: Date;
+
+  @IsDateString()
+  endTime: Date;
+
+  @IsString()
+  @IsOptional() // Hacemos NumberDocument opcional
+  NumberDocument: string;
+
+  @IsString()
+  description: string;
+
+//   @IsString()
+//   status: string;
+
+  @IsString()
+  dni: string;
+
+//   @IsInt()
+  salaId: number;
+
+//   @IsInt()
+  creatorId: number;
+}

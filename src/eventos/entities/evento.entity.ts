@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Sala } from '../../salas/entities/sala.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -25,14 +25,8 @@ export class Evento {
   @Column()
   description: string;
 
-  @Column()
-  status: string;
-
-  @Column()
-  createdAt: Date;
-
-  @Column()
-  updatedAt: Date;
+//   @Column()
+//   status: string;
 
   @Column()
   dni: string;
@@ -44,4 +38,10 @@ export class Evento {
   @ManyToOne(() => User, user => user.eventos, { eager: true, nullable: true, onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'creatorId' })
   creatorId: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
